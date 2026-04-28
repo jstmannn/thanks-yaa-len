@@ -1,0 +1,148 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Lato:wght@300;400&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .page { background: #f5ede2; min-height: 100vh; font-family: 'Lato', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 0 0 3rem; position: relative; overflow: hidden; }
+  .grain { position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; }
+  .header-strip { width: 100%; background: #c9a882; padding: 0.5rem 0; text-align: center; font-size: 11px; letter-spacing: 3px; color: #fff8f0; text-transform: uppercase; font-weight: 300; }
+  .photo-frame { position: relative; width: 230px; height: 290px; margin: 2rem auto 1.5rem; z-index: 1; }
+  .photo-frame::before { content: ''; position: absolute; top: 10px; left: 10px; width: 100%; height: 100%; border: 1.5px solid #c9a882; border-radius: 2px; z-index: 0; }
+  .photo-box { position: absolute; inset: 0; border-radius: 2px; overflow: hidden; z-index: 1; border: 1.5px solid #c9a882; }
+  .photo-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .tag-label { position: absolute; bottom: -14px; right: -10px; background: #7c5c3e; color: #fff8f0; font-size: 10px; letter-spacing: 2px; padding: 4px 12px; text-transform: uppercase; z-index: 2; border-radius: 1px; }
+  .title-block { z-index: 1; text-align: center; margin: 2.5rem 1.5rem 0.5rem; }
+  .title-block .small-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: #a08060; margin-bottom: 8px; font-weight: 300; }
+  .title-block h1 { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 400; color: #4a3323; line-height: 1.3; font-style: italic; }
+  .divider { width: 60px; height: 1px; background: #c9a882; margin: 1.2rem auto; z-index: 1; }
+  .message-block { z-index: 1; max-width: 320px; margin: 0 auto; padding: 0 1.5rem; text-align: center; color: #6b4c35; font-size: 14px; line-height: 1.85; font-weight: 300; }
+  .song-card { z-index: 1; background: #ede0cf; border: 1px solid #c9a882; border-radius: 4px; padding: 1.2rem 1.5rem; margin: 1.8rem 1.5rem 0; max-width: 320px; width: calc(100% - 3rem); }
+  .song-card .song-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #a08060; margin-bottom: 6px; }
+  .song-card .song-title { font-family: 'Playfair Display', serif; font-size: 16px; color: #4a3323; font-style: italic; margin-bottom: 1rem; }
+  .player-wrap { background: #f5ede2; border: 1px solid #c9a882; border-radius: 3px; padding: 0.8rem 1rem; }
+  .player-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .play-btn { width: 36px; height: 36px; border-radius: 50%; background: #7c5c3e; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .play-btn svg { fill: #fff8f0; }
+  .waveform-bars { display: flex; align-items: center; gap: 2px; height: 28px; flex: 1; }
+  .waveform-bars span { display: block; width: 3px; background: #c9a882; border-radius: 2px; animation: wave 1.2s ease-in-out infinite; }
+  .waveform-bars span:nth-child(1) { height: 8px; animation-delay: 0s; }
+  .waveform-bars span:nth-child(2) { height: 18px; animation-delay: 0.1s; }
+  .waveform-bars span:nth-child(3) { height: 24px; animation-delay: 0.2s; }
+  .waveform-bars span:nth-child(4) { height: 14px; animation-delay: 0.3s; }
+  .waveform-bars span:nth-child(5) { height: 22px; animation-delay: 0.4s; }
+  .waveform-bars span:nth-child(6) { height: 10px; animation-delay: 0.5s; }
+  .waveform-bars span:nth-child(7) { height: 18px; animation-delay: 0.6s; }
+  .waveform-bars span:nth-child(8) { height: 8px; animation-delay: 0.7s; }
+  .waveform-bars span:nth-child(9) { height: 20px; animation-delay: 0.8s; }
+  .waveform-bars span:nth-child(10) { height: 12px; animation-delay: 0.9s; }
+  .waveform-bars span.paused { animation-play-state: paused; }
+  @keyframes wave { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.3); } }
+  .progress-row { display: flex; align-items: center; gap: 8px; }
+  .progress-bar { flex: 1; height: 3px; background: #c9a882; border-radius: 2px; cursor: pointer; position: relative; }
+  .progress-fill { height: 100%; background: #7c5c3e; border-radius: 2px; width: 0%; transition: width 0.3s linear; }
+  .time-label { font-size: 10px; color: #a08060; min-width: 36px; text-align: right; }
+  .footer-note { z-index: 1; margin: 2rem 1.5rem 0; text-align: center; font-family: 'Playfair Display', serif; font-style: italic; font-size: 13px; color: #a08060; }
+  .save-btn { z-index: 1; margin: 1.5rem auto 0; display: block; background: #7c5c3e; color: #fff8f0; border: none; padding: 10px 28px; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; border-radius: 2px; font-family: 'Lato', sans-serif; font-weight: 300; }
+</style>
+
+<div class="page">
+  <div class="grain"></div>
+  <div class="header-strip">for you — with gratitude</div>
+
+  <div class="photo-frame">
+    <div class="photo-box">
+      <img src="assets/singer.jpeg" alt="foto">
+    </div>
+    <span class="tag-label">Cover by</span>
+  </div>
+
+  <div class="title-block">
+    <p class="small-label">sebuah ucapan</p>
+    <h1>Terima kasih,<br>sudah nyanyiin aku</h1>
+  </div>
+
+  <div class="divider"></div>
+
+  <p class="message-block">
+    Hai, makasih yaa udah nyanyiin request lagu dari aku.<br><br>
+    ngga expect suara kamu sebagus ituu<br>
+    kayaknya bakal sering-sering minta dinyanyiin deh kalo gini mah hehe<br><br>
+    semoga kamu selalu sehat, bahagia, dan terus dikelilingi hal-hal indah yang bikin kamu semangat dan terus nyanyi yaa!<br><br>
+    makasih banyak sekali lagi, aku seneng banget denger suara kamu nyanyiin lagu itu.
+  </p>
+
+  <div class="song-card">
+    <p class="song-label">lagu yang dinyanyikan</p>
+    <p class="song-title">Sedia Aku Sebelum Hujan</p>
+    <div class="player-wrap">
+      <div class="player-top">
+        <button class="play-btn" id="playBtn" onclick="togglePlay()">
+          <svg id="playIcon" width="14" height="14" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+        </button>
+        <div class="waveform-bars" id="waveBars">
+          <span class="paused"></span><span class="paused"></span><span class="paused"></span>
+          <span class="paused"></span><span class="paused"></span><span class="paused"></span>
+          <span class="paused"></span><span class="paused"></span><span class="paused"></span>
+          <span class="paused"></span>
+        </div>
+      </div>
+      <div class="progress-row">
+        <div class="progress-bar" id="progressBar" onclick="seekAudio(event)">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <span class="time-label" id="timeLabel">0:00</span>
+      </div>
+    </div>
+    <audio id="audioEl" src="assets/sedia-aku-sebelum-hujan.mp3" preload="metadata"></audio>
+  </div>
+
+  <p class="footer-note">— Created by Rohman @2026 🍂</p>
+  <button class="save-btn" onclick="window.print()">simpan / cetak</button>
+</div>
+
+<script>
+  const audio = document.getElementById('audioEl');
+  const playIcon = document.getElementById('playIcon');
+  const progressFill = document.getElementById('progressFill');
+  const timeLabel = document.getElementById('timeLabel');
+  const waveBars = document.getElementById('waveBars');
+  let playing = false;
+
+  function togglePlay() {
+    if (playing) {
+      audio.pause();
+      playing = false;
+      playIcon.innerHTML = '<polygon points="5,3 19,12 5,21"/>';
+      waveBars.querySelectorAll('span').forEach(s => s.classList.add('paused'));
+    } else {
+      audio.play().catch(() => {});
+      playing = true;
+      playIcon.innerHTML = '<rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/>';
+      waveBars.querySelectorAll('span').forEach(s => s.classList.remove('paused'));
+    }
+  }
+
+  audio.addEventListener('timeupdate', () => {
+    if (!audio.duration) return;
+    const pct = (audio.currentTime / audio.duration) * 100;
+    progressFill.style.width = pct + '%';
+    const m = Math.floor(audio.currentTime / 60);
+    const s = Math.floor(audio.currentTime % 60).toString().padStart(2, '0');
+    timeLabel.textContent = m + ':' + s;
+  });
+
+  audio.addEventListener('ended', () => {
+    playing = false;
+    playIcon.innerHTML = '<polygon points="5,3 19,12 5,21"/>';
+    waveBars.querySelectorAll('span').forEach(s => s.classList.add('paused'));
+    progressFill.style.width = '0%';
+    timeLabel.textContent = '0:00';
+  });
+
+  function seekAudio(e) {
+    if (!audio.duration) return;
+    const bar = document.getElementById('progressBar');
+    const rect = bar.getBoundingClientRect();
+    const ratio = (e.clientX - rect.left) / rect.width;
+    audio.currentTime = ratio * audio.duration;
+  }
+</script>
